@@ -1,0 +1,8 @@
+dagger -m ../dagger-modules/dagger-java-build call publish --source=./ --appName spring-petclinic --version 1.0.0
+dagger -m ../dagger-modules/dagger-typescript-build call publish --source=./ --appName spring-petclinic --version 1.0.0
+
+dagger init --sdk=typescript --source=./ --name=typescript-build
+dagger develop --sdk=typescript --source=./ --name=typescript-build
+
+dagger init --sdk=java --source=./ --name=java-build
+dagger develop --sdk=java --source=./ --name=java-build

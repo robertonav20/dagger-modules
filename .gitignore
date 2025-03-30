@@ -1,4 +1,9 @@
 # Compiled class file
+target/
+sdk/
+node_modules/
+
+# Compiled class file
 *.class
 
 # Log file
