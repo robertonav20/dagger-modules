@@ -21,17 +21,40 @@ import (
 
 type JavaBuild struct{}
 
-// Returns a container that echoes whatever string argument is provided
-func (m *JavaBuild) ContainerEcho(stringArg string) *dagger.Container {
-	return dag.Container().From("alpine:latest").WithExec([]string{"echo", stringArg})
+func (m *JavaBuild) Publish(source *dagger.Directory, appName string, version string) (string, error) {
+	Test(source)
+	ctx := context.Background()
+	return Build(source).
+		Publish(ctx, "ttl.sh/"+appName+"."+version)
+}
+
+/** Build the application container */
+func Build(source *dagger.Directory) *dagger.Container {
+	var build = BuildEnv(source).
+		WithExec([]string{"mvn", "clean", "package", "-DskipTests"}).
+		Directory("./target")
+	return dag.
+		Container().
+		From("eclipse-temurin:17-jre-alpine").
+		WithDirectory("/app", build).
+		WithExposedPort(8080).
+		WithEntrypoint([]string{"java", "-jar", "/app/app.jar"})
+}
+
+func Test(source *dagger.Directory) (string, error) {
+	ctx := context.Background()
+	return BuildEnv(source).
+		WithExec([]string{"mvn", "test"}).
+		Stdout(ctx)
 }
 
 // Returns lines that match a pattern in the files of the provided Directory
-func (m *JavaBuild) GrepDir(ctx context.Context, directoryArg *dagger.Directory, pattern string) (string, error) {
-	return dag.Container().
-		From("alpine:latest").
-		WithMountedDirectory("/mnt", directoryArg).
-		WithWorkdir("/mnt").
-		WithExec([]string{"grep", "-R", pattern, "."}).
-		Stdout(ctx)
+func BuildEnv(source *dagger.Directory) *dagger.Container {
+	var m2Cache = dag.CacheVolume("m2")
+	return dag.
+		Container().
+		From("maven:3.9-eclipse-temurin-17-alpine").
+		WithDirectory("/src", source).
+		WithMountedCache("/root/.m2", m2Cache).
+		WithWorkdir("/src")
 }
