@@ -17,10 +17,10 @@ public class JavaBuild {
 
   /** Publish the application container after building and testing it on-the-fly */
   @Function
-  public String publish(@DefaultPath("/") Directory source, String appName, String version)
+  public String publish(@DefaultPath("/") Directory source, String repository, String appName, String version)
       throws InterruptedException, ExecutionException, DaggerQueryException {
     this.test(source);
-    return this.build(source).publish(String.format("ttl.sh/%s.%s", appName, version));
+    return this.build(source).publish(String.format("%s/%s:%s", repository, appName, version));
   }
 
   /** Build the application container */

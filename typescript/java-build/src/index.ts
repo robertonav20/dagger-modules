@@ -20,9 +20,9 @@ export class TypescriptBuild {
 
   /** Publish the application container after building and testing it on-the-fly */
   @func()
-  async publish(source: Directory, appName: string, version: string): Promise<string> {
+  async publish(source: Directory, repository: string, appName: string, version: string): Promise<string> {
     await this.test(source);
-    return this.build(source).publish("ttl.sh/" + appName + "." + version);
+    return this.build(source).publish(repository + "/" + appName + "-" + version);
   }
 
   /** Build the application container */

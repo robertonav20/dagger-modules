@@ -21,11 +21,11 @@ import (
 
 type JavaBuild struct{}
 
-func (m *JavaBuild) Publish(source *dagger.Directory, appName string, version string) (string, error) {
+func (m *JavaBuild) Publish(source *dagger.Directory, repository string, appName string, version string) (string, error) {
 	Test(source)
 	ctx := context.Background()
 	return Build(source).
-		Publish(ctx, "ttl.sh/"+appName+"."+version)
+		Publish(ctx, repository + "/" + appName + ":" + version)
 }
 
 /** Build the application container */
