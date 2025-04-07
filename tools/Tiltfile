@@ -1,0 +1,42 @@
+DOCKER_GID_KEY = 'DOCKER_GID'
+GITEA_PASSWORD_KEY = 'GITEA_PASSWORD'
+GITEA_USER_KEY = 'GITEA_USER'
+JENKINS_ADMIN_PASSWORD_KEY = 'JENKINS_ADMIN_PASSWORD'
+JENKINS_ADMIN_USER_KEY = 'JENKINS_ADMIN_USER'
+JENKINS_FOLDER_KEY = 'JENKINS_FOLDER'
+
+DOCKER_GID_VALUE = local(command='getent group docker | cut -d: -f3')
+GITEA_USER_VALUE = 'admin'
+GITEA_PASSWORD_VALUE = 'admin'
+JENKINS_ADMIN_PASSWORD_VALUE = 'admin'
+JENKINS_ADMIN_USER_VALUE = 'admin'
+JENKINS_FOLDER_VALUE = 'dagger'
+
+BUILD_ARGS = {
+    DOCKER_GID_KEY: DOCKER_GID_VALUE,
+    GITEA_USER_KEY: GITEA_USER_VALUE,
+    GITEA_PASSWORD_KEY: GITEA_PASSWORD_VALUE,
+    JENKINS_ADMIN_PASSWORD_KEY: JENKINS_ADMIN_PASSWORD_VALUE,
+    JENKINS_ADMIN_USER_KEY: JENKINS_ADMIN_USER_VALUE,
+    JENKINS_FOLDER_KEY: JENKINS_FOLDER_VALUE,
+}
+
+os.putenv(DOCKER_GID_KEY, DOCKER_GID_VALUE)
+os.putenv(GITEA_USER_KEY, GITEA_USER_VALUE)
+os.putenv(GITEA_PASSWORD_KEY, GITEA_PASSWORD_VALUE)
+os.putenv(JENKINS_ADMIN_PASSWORD_KEY, JENKINS_ADMIN_PASSWORD_VALUE)
+os.putenv(JENKINS_ADMIN_USER_KEY, JENKINS_ADMIN_USER_VALUE)
+os.putenv(JENKINS_FOLDER_KEY, JENKINS_FOLDER_VALUE)
+
+docker_build(
+    ref ='jenkins-image',
+    context = './jenkins',
+    dockerfile = './jenkins/Dockerfile',
+    build_args = BUILD_ARGS
+)
+
+docker_compose( configPaths = './docker-compose.yaml')
+
+dc_resource(name = 'nexus', labels = ['Services'])
+dc_resource(name = 'gitea', labels = ['Services'])
+dc_resource(name = 'jenkins', labels = ['Services'])

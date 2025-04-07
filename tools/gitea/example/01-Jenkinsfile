@@ -1,0 +1,26 @@
+pipeline {
+  agent any
+
+  options {
+      ansiColor('xterm')
+  }
+
+  // assumes that the Dagger Cloud token
+  // is in a Jenkins credential named DAGGER_CLOUD_TOKEN
+  environment {
+    DAGGER_VERSION = "0.18.1"
+    PATH = "/tmp/dagger/bin:$PATH"
+    DAGGER_NO_NAG = 1
+  }
+
+  stages {
+    stage("dagger") {
+      steps {
+        sh '''
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR=/tmp/dagger/bin DAGGER_VERSION=$DAGGER_VERSION sh
+          dagger call -m github.com/shykes/hello hello --greeting "Hello" --name "from jenkins"
+        '''
+      }
+    }
+  }
+}

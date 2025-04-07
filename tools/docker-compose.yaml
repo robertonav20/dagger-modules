@@ -1,0 +1,59 @@
+services:
+
+  jaeger:
+    hostname: jaeger
+    container_name: jaeger
+    image: jaegertracing/all-in-one:latest
+    restart: always
+    ports:
+      - "14268:14268"
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+
+  nexus:
+    hostname: nexus
+    container_name: nexus
+    image: sonatype/nexus3
+    restart: always
+    ports:
+      - "8081:8081"
+      - "8085:8085"
+
+  gitea:
+    hostname: gitea
+    container_name: gitea
+    image: docker.gitea.com/gitea:1.23.6
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    restart: always
+    ports:
+      - "3000:3000"
+      - "222:22"
+    volumes:
+      - ./gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+
+  jenkins:
+    hostname: jenkins
+    container_name: jenkins
+    image: jenkins-image
+    build:
+      context: ./jenkins
+      dockerfile: Dockerfile
+      args:
+        GITEA_USER: ${GITEA_USER}
+        GITEA_PASSWORD: ${GITEA_PASSWORD}
+        JENKINS_ADMIN_USER: ${JENKINS_ADMIN_USER}
+        JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD}
+        JENKINS_FOLDER: ${JENKINS_FOLDER}
+    group_add:
+        - 999
+    privileged: true
+    ports:
+      - "8090:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
