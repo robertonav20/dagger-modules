@@ -1,5 +1,15 @@
 services:
 
+  dagger:
+    hostname: dagger
+    container_name: dagger
+    image: registry.dagger.io/engine:v0.18.1
+    restart: always
+    privileged: true
+    volumes:
+      - ./dagger/engine.toml:/etc/dagger/engine.toml
+      - dagger-engine:/var/lib/dagger
+
   jaeger:
     hostname: jaeger
     container_name: jaeger
@@ -10,6 +20,18 @@ services:
       - "16686:16686"
       - "4317:4317"
       - "4318:4318"
+
+  nginx:
+    hostname: nexus-registry
+    container_name: nexus-registry
+    image: nginx:alpine
+    depends_on:
+      - nexus
+    ports:
+      - "5443:5443"
+    volumes:
+      - ./nginx/certs:/etc/nginx/certs
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
 
   nexus:
     hostname: nexus
@@ -63,3 +85,6 @@ services:
       - ./jenkins/data:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker
+
+volumes:
+  dagger-engine:

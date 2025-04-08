@@ -7,7 +7,8 @@ RUN jenkins-plugin-cli --plugins \
     credentials \
     ansicolor:1.0.6 \
     workflow-aggregator:608.v67378e9d3db_1 \
-    ws-cleanup:0.48
+    ws-cleanup:0.48 \
+    gitea:238.v626a_cf5e1940
 
 # Set Docker binaries in PATH
 ENV PATH=$PATH:/usr/bin/docker

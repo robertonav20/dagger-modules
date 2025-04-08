@@ -17,7 +17,7 @@ dagger -m ../dagger-modules/java/java-build call publish \
     --version 1.0.0
 export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/java/java-build call publish \
     --source=./ \
-    --repository "nexus-registry:5000" \
+    --repository "nexus-registry:5443" \
     --username admin \
     --password env:JENKINS_PASSWORD \
     --appName "docker/spring-petclinic" \
@@ -30,7 +30,7 @@ dagger -m ../dagger-modules/typescript/java-build call publish \
     --version 1.0.0
 export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/typescript/java-build call publish \
     --source=./ \
-    --repository "nexus-registry:5000" \
+    --repository "nexus-registry:5443" \
     --username admin \
     --password env:JENKINS_PASSWORD \
     --appName "docker/spring-petclinic" \
@@ -43,7 +43,7 @@ dagger -m ../dagger-modules/go/java-build call publish \
     --version 1.0.0
 export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/go/java-build call publishWithAuth \
     --source=./ \
-    --repository "nexus-registry:5000" \
+    --repository "nexus-registry:5443" \
     --username admin \
     --password env:JENKINS_PASSWORD \
     --appName "docker/spring-petclinic" \
@@ -52,3 +52,13 @@ export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/go/java-build ca
 https://github.com/levlaz/snippetbox/tree/main
 
 echo "admin123" | docker login localhost:5000 --username admin --password-stdin
+
+## Add repot to gitea
+git remote remove gitea && git remote add gitea http://admin:admin@localhost:3000/admin/dagger-modules.git && git push --force gitea
+git remote remove gitea && git remote add gitea http://admin:admin@localhost:3000/admin/spring-petclinic.git && git push --force gitea
+
+## Cenerate certificate nexus docker
+openssl req -x509 -newkey rsa:4096 -sha256 -days 365 -nodes \
+    -keyout certs/nexus-registry.key -out certs/nexus-registry.crt \
+    -subj "/CN=*" \
+    -addext "subjectAltName = DNS:nexus-registry, DNS:localhost, DNS:172.*.*.*"

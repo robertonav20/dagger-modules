@@ -5,12 +5,11 @@ pipeline {
       ansiColor('xterm')
   }
 
-  // assumes that the Dagger Cloud token
-  // is in a Jenkins credential named DAGGER_CLOUD_TOKEN
   environment {
     DAGGER_NO_NAG = 1
     DAGGER_VERSION = "0.18.1"
     PATH = "/tmp/dagger/bin:$PATH"
+    _EXPERIMENTAL_DAGGER_RUNNER_HOST = "tcp://dagger:1234"
   }
 
   stages {
@@ -18,8 +17,12 @@ pipeline {
       steps {
         sh '''
           curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR=/tmp/dagger/bin DAGGER_VERSION=$DAGGER_VERSION sh
-          rm -rf dagger-modules && git clone http://gitea:3000/dagger/dagger-modules/ dagger-modules
-          dagger call -m ./dagger-modules/java/java-build publish --source=./ --repository ttl.sh --appName spring-petclinic --version 1.0.0
+          rm -rf dagger-modules && git clone http://gitea:3000/admin/dagger-modules/ dagger-modules
+          dagger call -m ./dagger-modules/java/java-build publish \
+            --source=./ \
+            --repository ttl.sh \
+            --appName spring-petclinic \
+            --version 1.0.0
         '''
       }
     }

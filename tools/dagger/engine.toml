@@ -1,0 +1,10 @@
+debug = true
+trace = false
+insecure-entitlements = ["security.insecure"]
+
+[registry."nexus-registry:5443"]
+  http = true
+  insecure = true
+
+[grpc]
+  address = [ "tcp://0.0.0.0:1234" ]
