@@ -20,7 +20,13 @@ pipeline {
         sh '''
           curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR=/tmp/dagger/bin DAGGER_VERSION=$DAGGER_VERSION sh
           rm -rf dagger-modules && git clone http://gitea:3000/dagger/dagger-modules/ dagger-modules
-          dagger call -m ./dagger-modules/java/java-build publish --source=./ --repository nexus/docker --username jenkins --password env:NEXUS_PASSWORD --appName spring-petclinic --version 1.0.0
+          dagger call -m ./dagger-modules/java/java-build publish \
+            --source=./ \
+            --repository "nexus-registry:5000" \
+            --username jenkins \
+            --password env:NEXUS_PASSWORD \
+            --appName "docker/spring-petclinic" \
+            --version 1.0.0
         '''
       }
     }
