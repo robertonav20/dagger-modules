@@ -11,14 +11,23 @@ services:
       - "4317:4317"
       - "4318:4318"
 
+  nginx:
+    hostname: nginx
+    container_name: nginx
+    image: nginx:alpine
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 8081:8081
+
   nexus:
     hostname: nexus
     container_name: nexus
     image: sonatype/nexus3
     restart: always
-    ports:
-      - "8081:8081"
-      - "8085:8085"
+    volumes:
+      - ./nexus/data:/data
 
   gitea:
     hostname: gitea
@@ -32,7 +41,7 @@ services:
       - "3000:3000"
       - "222:22"
     volumes:
-      - ./gitea:/data
+      - ./gitea/data:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
 
@@ -46,6 +55,8 @@ services:
       args:
         GITEA_USER: ${GITEA_USER}
         GITEA_PASSWORD: ${GITEA_PASSWORD}
+        NEXUS_USER: ${NEXUS_USER}
+        NEXUS_PASSWORD: ${NEXUS_PASSWORD}
         JENKINS_ADMIN_USER: ${JENKINS_ADMIN_USER}
         JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD}
         JENKINS_FOLDER: ${JENKINS_FOLDER}
@@ -54,6 +65,8 @@ services:
     privileged: true
     ports:
       - "8090:8080"
+      - "50000:50000"
     volumes:
+      - ./jenkins/data:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker

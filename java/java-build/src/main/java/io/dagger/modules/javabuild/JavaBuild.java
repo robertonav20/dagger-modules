@@ -1,12 +1,15 @@
 package io.dagger.modules.javabuild;
 
 import static io.dagger.client.Dagger.dag;
+
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import io.dagger.client.CacheVolume;
 import io.dagger.client.Container;
 import io.dagger.client.DaggerQueryException;
 import io.dagger.client.Directory;
+import io.dagger.client.Secret;
 import io.dagger.module.annotation.DefaultPath;
 import io.dagger.module.annotation.Function;
 import io.dagger.module.annotation.Object;
@@ -17,9 +20,15 @@ public class JavaBuild {
 
   /** Publish the application container after building and testing it on-the-fly */
   @Function
-  public String publish(@DefaultPath("/") Directory source, String repository, String appName, String version)
+  public String publish(@DefaultPath("/") Directory source, String repository, Optional<String> username, Optional<Secret> password, String appName, String version)
       throws InterruptedException, ExecutionException, DaggerQueryException {
     this.test(source);
+    if (password.isPresent()) {
+      return this.build(source)
+        .withRegistryAuth(repository, username.get(), password.get())
+        .publish(String.format("%s/%s:%s", repository, appName, version));
+    }
+
     return this.build(source).publish(String.format("%s/%s:%s", repository, appName, version));
   }
 

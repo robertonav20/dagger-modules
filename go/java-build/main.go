@@ -28,6 +28,14 @@ func (m *JavaBuild) Publish(source *dagger.Directory, repository string, appName
 		Publish(ctx, repository + "/" + appName + ":" + version)
 }
 
+func (m *JavaBuild) PublishWithAuth(source *dagger.Directory, repository string, username string, password *dagger.Secret, appName string, version string) (string, error) {
+	Test(source)
+	ctx := context.Background()
+	return Build(source).
+		WithRegistryAuth(repository, username, password).
+		Publish(ctx, repository + "/" + appName + ":" + version)
+}
+
 /** Build the application container */
 func Build(source *dagger.Directory) *dagger.Container {
 	var build = BuildEnv(source).

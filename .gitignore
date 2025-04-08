@@ -11,6 +11,6 @@
 hs_err_pid*
 replay_pid*
 
-tools/gitea/git
-tools/gitea/gitea
-tools/gitea/ssh
+tools/gitea/data
+tools/jenkins/data
+tools/nexus/data

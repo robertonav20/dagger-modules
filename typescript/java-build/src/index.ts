@@ -13,16 +13,27 @@
  * rest is a long description with more detail on the module's purpose or usage,
  * if appropriate. All modules should have a short description.
  */
-import { dag, Container, Directory, object, func } from "@dagger.io/dagger"
+import { dag, Container, Directory, Secret, object, func } from "@dagger.io/dagger"
 
 @object()
 export class TypescriptBuild {
 
   /** Publish the application container after building and testing it on-the-fly */
   @func()
-  async publish(source: Directory, repository: string, appName: string, version: string): Promise<string> {
+  async publish(source: Directory, repository: string, username?: string, password?: Secret, appName: string, version: string): Promise<string> {
     await this.test(source);
-    return this.build(source).publish(repository + "/" + appName + "-" + version);
+    if (password) {
+      return this.build(source)
+        .withRegistryAuth({
+          server: repository,
+          username: username,
+          password: password,
+        })
+        .publish(repository + "/" + appName + "-" + version);
+    }
+
+    return this.build(source)
+        .publish(repository + "/" + appName + "-" + version);
   }
 
   /** Build the application container */
