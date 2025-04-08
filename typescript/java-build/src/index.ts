@@ -24,11 +24,7 @@ export class TypescriptBuild {
     await this.test(source);
     if (password) {
       return this.build(source)
-        .withRegistryAuth({
-          server: repository,
-          username: username,
-          password: password,
-        })
+        .withRegistryAuth(repository, username, password)
         .publish(repository + "/" + appName + "-" + version);
     }
 

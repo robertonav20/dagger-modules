@@ -11,11 +11,14 @@ dagger develop --sdk=go --source=./
 ## How to Use
 
 dagger -m ../dagger-modules/java/java-build call publish --source=./ --repository ttl.sh --appName spring-petclinic --version 1.0.0
-export JENKINS=jenkins && dagger -m ../dagger-modules/java/java-build call publish --source=./ --repository nexus/docker --username jenkins --password env:JENKINS --appName spring-petclinic --version 1.0.0
+export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/java/java-build call publish --source=./ --repository "localhost:5000" --username admin --password env:JENKINS_PASSWORD --appName "test/spring-petclinic" --version 1.0.0
 
 dagger -m ../dagger-modules/typescript/java-build call publish --source=./ --repository ttl.sh --appName spring-petclinic --version 1.0.0
-export JENKINS=jenkins && dagger -m ../dagger-modules/typescript/java-build call publish --source=./ --repository nexus/docker --username jenkins --password env:JENKINS --appName spring-petclinic --version 1.0.0
+export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/typescript/java-build call publish --source=./ --repository "localhost:5000" --username admin --password env:JENKINS_PASSWORD --appName "test/spring-petclinic" --version 1.0.0
 
 dagger -m ../dagger-modules/go/java-build call publish --source=./ --repository ttl.sh --appName spring-petclinic --version 1.0.0
-export JENKINS=jenkins && dagger -m ../dagger-modules/go/java-build call publishWithAuth --source=./ --repository nexus/docker --username jenkins --password env:JENKINS --appName spring-petclinic --version 1.0.0
+export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/go/java-build call publishWithAuth --source=./ --repository "localhost:5000" --username admin --password env:JENKINS_PASSWORD --appName "test/spring-petclinic" --version 1.0.0
 
+https://github.com/levlaz/snippetbox/tree/main
+
+echo "admin123" | docker login localhost:5000 --username admin --password-stdin
