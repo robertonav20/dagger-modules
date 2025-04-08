@@ -47,7 +47,7 @@ docker_compose( configPaths = './docker-compose.yaml')
 
 dc_resource(name = 'dagger', labels = ['Services'])
 dc_resource(name = 'jaeger', labels = ['Services'])
-dc_resource(name = 'nginx', labels = ['Services'])
+# dc_resource(name = 'nginx', labels = ['Services'])
 dc_resource(name = 'nexus', labels = ['Services'])
 dc_resource(name = 'gitea', labels = ['Services'])
 dc_resource(name = 'jenkins', labels = ['Services'])

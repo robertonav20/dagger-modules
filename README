@@ -62,3 +62,16 @@ openssl req -x509 -newkey rsa:4096 -sha256 -days 365 -nodes \
     -keyout certs/nexus-registry.key -out certs/nexus-registry.crt \
     -subj "/CN=*" \
     -addext "subjectAltName = DNS:nexus-registry, DNS:localhost, DNS:172.*.*.*"
+
+keytool \
+    -genkeypair \
+    -keystore keystore.jks \
+    -storepass password \
+    -keypass password \
+    -alias jetty \
+    -keyalg RSA \
+    -keysize 2048 \
+    -validity 5000 \
+    -dname "CN=*.nexus-registry, OU=Nexus, O=Sonatype, L=Unspecified, ST=Unspecified, C=US" \
+    -ext "SAN=DNS:nexus,DNS:nexus-registry,IP:172.18.0.7" \
+    -ext "BC=ca:true"
