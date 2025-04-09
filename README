@@ -16,10 +16,10 @@ dagger -m ../dagger-modules/java/java-build call publish \
     --version 1.0.0
 export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/java/java-build call publish \
     --source=./ \
-    --repository "nexus-registry:5443" \
+    --repository "nexus.local" \
     --username admin \
     --password env:JENKINS_PASSWORD \
-    --appName "docker/spring-petclinic" \
+    --appName "docker-repo/spring-petclinic" \
     --version 1.0.0
 
 dagger -m ../dagger-modules/typescript/java-build call publish \
@@ -29,10 +29,10 @@ dagger -m ../dagger-modules/typescript/java-build call publish \
     --version 1.0.0
 export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/typescript/java-build call publish \
     --source=./ \
-    --repository "nexus-registry:5443" \
+    --repository "nexus.local" \
     --username admin \
     --password env:JENKINS_PASSWORD \
-    --appName "docker/spring-petclinic" \
+    --appName "docker-repo/spring-petclinic" \
     --version 1.0.0
 
 dagger -m ../dagger-modules/go/java-build call publish \
@@ -42,10 +42,10 @@ dagger -m ../dagger-modules/go/java-build call publish \
     --version 1.0.0
 export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/go/java-build call publishWithAuth \
     --source=./ \
-    --repository "nexus-registry:5443" \
+    --repository "nexus.local" \
     --username admin \
     --password env:JENKINS_PASSWORD \
-    --appName "docker/spring-petclinic" \
+    --appName "docker-repo/spring-petclinic" \
     --version 1.0.0
 
 
@@ -56,7 +56,22 @@ git remote remove gitea && git remote add gitea http://admin:admin123@localhost:
 git remote remove gitea && git remote add gitea http://admin:admin123@localhost:3000/dagger/spring-petclinic.git && git push --force gitea
 
 ### Cenerate certificate nexus docker
-openssl req -x509 -nodes -newkey rsa:4096 -days 365 -subj "/CN=nexus.local" -addext "subjectAltName = DNS:DNS:nexus.local, IP:127.0.0.1" -keyout certs/nexus.key -out certs/nexus.cert
+1. openssl req -x509 -nodes -newkey rsa:4096 -days 365 -subj "/CN=nexus.local" -addext "subjectAltName = DNS:DNS:nexus.local, IP:127.0.0.1" -keyout certs/nexus.key -out certs/nexus.cert
+2. Insert into nginx/certs folder
+
+### Nexus
+1. Create admin user with admin123 password
+2. Create a docker proxy named docker-proxy with port 8082 anynonymous pull true and docker-hub (registry-1.docker.io) as remote storage
+3. Create a docker hosted named docker-repo with port 8083 and anynonymous pull true
+
+
+### Jenkins
+CRUMB_NEW=$(curl -s "http://admin:11b30e06526b59669fe8fd7e61a7ab17ab@localhost:8090/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)") \
+    && curl -s -X POST \
+        -H $CRUMB_NEW \
+        "http://admin:11b30e06526b59669fe8fd7e61a7ab17ab@localhost:8090/dagger/createItem?name=spring-petclinic" \
+        --header "Content-Type: application/xml" \
+        -d @spring-petclinic.xml
 
 ### Docker
 echo "admin123" | docker login nexus.local --username admin --password-stdin

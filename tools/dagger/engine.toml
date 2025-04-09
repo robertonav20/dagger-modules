@@ -3,7 +3,7 @@ trace = false
 insecure-entitlements = ["security.insecure"]
 
 [registry."nexus.local"]
-  http = false
+  http = true
   insecure = true
 
 [grpc]

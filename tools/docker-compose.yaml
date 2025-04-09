@@ -1,5 +1,4 @@
 services:
-
   dagger:
     hostname: dagger
     container_name: dagger
@@ -11,6 +10,8 @@ services:
     privileged: true
     ports:
       - "1234:1234"
+    links:
+      - "nginx:nexus.local"
     volumes:
       - dagger-engine:/var/lib/dagger
 
@@ -81,11 +82,13 @@ services:
         JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD}
         JENKINS_FOLDER: ${JENKINS_FOLDER}
     group_add:
-        - 999
+      - 999
     privileged: true
     ports:
       - "8090:8080"
       - "50000:50000"
+    links:
+      - "nginx:nexus.local"
     volumes:
       - jenkins:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock

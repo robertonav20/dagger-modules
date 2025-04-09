@@ -9,7 +9,7 @@ pipeline {
     DAGGER_NO_NAG = 1
     DAGGER_VERSION = "0.18.1"
     PATH = "/tmp/dagger/bin:$PATH"
-    NEXUS_PASSWORD = credentials('nexus-credentials')
+    NEXUS_PASSWORD = "admin123"
     _EXPERIMENTAL_DAGGER_RUNNER_HOST = "tcp://dagger:1234"
   }
 
@@ -22,7 +22,7 @@ pipeline {
           dagger call -m ./dagger-modules/java/java-build publish \
             --source=./ \
             --repository "nexus.local" \
-            --username jenkins \
+            --username admin \
             --password env:NEXUS_PASSWORD \
             --appName "docker-repo/spring-petclinic" \
             --version 1.0.0
