@@ -65,6 +65,8 @@ git remote remove gitea && git remote add gitea http://admin:admin123@localhost:
 3. Create a docker hosted named docker-repo with port 8083 and anynonymous pull true
 4. Enable "Docker Bearer Token Realm" in "Security -> Realms"
 
+Follow this guide in case is not clear https://medium.com/@sametustaoglu/nexus-proxy-docker-repository-with-nginx-and-traefik-018dd6b04f72
+
 ### Jenkins
 CRUMB_NEW=$(curl -s "http://admin:11b30e06526b59669fe8fd7e61a7ab17ab@localhost:8090/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)") \
     && curl -s -X POST \
