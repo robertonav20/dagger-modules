@@ -36,6 +36,28 @@ os.putenv(JENKINS_ADMIN_PASSWORD_KEY, JENKINS_ADMIN_PASSWORD_VALUE)
 os.putenv(JENKINS_ADMIN_USER_KEY, JENKINS_ADMIN_USER_VALUE)
 os.putenv(JENKINS_FOLDER_KEY, JENKINS_FOLDER_VALUE)
 
+
+docker_build(
+    ref ='dagger-image',
+    context = './dagger',
+    dockerfile = './dagger/Dockerfile',
+    build_args = BUILD_ARGS
+)
+
+docker_build(
+    ref ='nginx-image',
+    context = './nginx',
+    dockerfile = './nginx/Dockerfile',
+    build_args = BUILD_ARGS
+)
+
+docker_build(
+    ref ='gitea-image',
+    context = './gitea',
+    dockerfile = './gitea/Dockerfile',
+    build_args = BUILD_ARGS
+)
+
 docker_build(
     ref ='jenkins-image',
     context = './jenkins',
@@ -43,11 +65,12 @@ docker_build(
     build_args = BUILD_ARGS
 )
 
+
 docker_compose( configPaths = './docker-compose.yaml')
 
 dc_resource(name = 'dagger', labels = ['Services'])
 dc_resource(name = 'jaeger', labels = ['Services'])
-dc_resource(name = 'nginx', labels = ['Services'])
+dc_resource(name = 'nginx', labels = ['Services'], links = ['https://nexus.local'])
 dc_resource(name = 'nexus', labels = ['Services'])
 dc_resource(name = 'gitea', labels = ['Services'])
 dc_resource(name = 'jenkins', labels = ['Services'])

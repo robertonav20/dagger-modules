@@ -2,8 +2,8 @@ debug = true
 trace = false
 insecure-entitlements = ["security.insecure"]
 
-[registry."nexus.local:443"]
-  http = true
+[registry."nexus.local"]
+  http = false
   insecure = true
 
 [grpc]

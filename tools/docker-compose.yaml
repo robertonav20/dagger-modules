@@ -3,13 +3,15 @@ services:
   dagger:
     hostname: dagger
     container_name: dagger
-    image: registry.dagger.io/engine:v0.18.1
+    image: dagger-image
+    build:
+      context: ./dagger
+      dockerfile: Dockerfile
     restart: always
     privileged: true
     ports:
       - "1234:1234"
     volumes:
-      - ./dagger/engine.toml:/etc/dagger/engine.toml
       - dagger-engine:/var/lib/dagger
 
   jaeger:
@@ -26,15 +28,13 @@ services:
   nginx:
     hostname: nginx
     container_name: nginx
-    image: nginx:alpine
-    depends_on:
-      - nexus
+    image: nginx-image
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - ./nginx/certs:/etc/nginx/certs
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
 
   nexus:
     hostname: nexus
@@ -44,12 +44,15 @@ services:
     ports:
       - "8081:8081"
     volumes:
-      - ./nexus/data:/data
+      - nexus:/nexus-data
 
   gitea:
     hostname: gitea
     container_name: gitea
-    image: docker.gitea.com/gitea:1.23.6
+    image: gitea-image
+    build:
+      context: ./gitea
+      dockerfile: Dockerfile
     environment:
       - USER_UID=1000
       - USER_GID=1000
@@ -58,7 +61,7 @@ services:
       - "3000:3000"
       - "222:22"
     volumes:
-      - ./gitea/data:/data
+      - gitea:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
 
@@ -84,9 +87,12 @@ services:
       - "8090:8080"
       - "50000:50000"
     volumes:
-      - ./jenkins/data:/var/jenkins_home
+      - jenkins:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker
 
 volumes:
   dagger-engine:
+  nexus:
+  jenkins:
+  gitea:

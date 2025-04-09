@@ -1,0 +1,1 @@
+FROM docker.gitea.com/gitea:1.23.6

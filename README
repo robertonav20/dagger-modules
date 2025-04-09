@@ -9,7 +9,6 @@ dagger init --sdk=go --source=./ --name=java-build
 dagger develop --sdk=go --source=./
 
 ## How to Use
-
 dagger -m ../dagger-modules/java/java-build call publish \
     --source=./ \
     --repository ttl.sh \
@@ -49,29 +48,21 @@ export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/go/java-build ca
     --appName "docker/spring-petclinic" \
     --version 1.0.0
 
-https://github.com/levlaz/snippetbox/tree/main
 
-echo "admin123" | docker login localhost:5000 --username admin --password-stdin
+## Useful commands
 
-## Add repot to gitea
-git remote remove gitea && git remote add gitea http://admin:admin@localhost:3000/admin/dagger-modules.git && git push --force gitea
-git remote remove gitea && git remote add gitea http://admin:admin@localhost:3000/admin/spring-petclinic.git && git push --force gitea
+### Add repot to gitea
+git remote remove gitea && git remote add gitea http://admin:admin123@localhost:3000/dagger/dagger-modules.git && git push --force gitea
+git remote remove gitea && git remote add gitea http://admin:admin123@localhost:3000/dagger/spring-petclinic.git && git push --force gitea
 
-## Cenerate certificate nexus docker
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/nexus.key -out certs/nexus.crt -config certs/cert.cnf
+### Cenerate certificate nexus docker
+openssl req -x509 -nodes -newkey rsa:4096 -days 365 -subj "/CN=nexus.local" -addext "subjectAltName = DNS:DNS:nexus.local, IP:127.0.0.1" -keyout certs/nexus.key -out certs/nexus.cert
 
-openssl pkcs12 -export -in certs/nexus.crt -inkey certs/nexus.key \
-    -out certs/nexus.p12 -name nexus \
-    -passout pass:password
+### Docker
+echo "admin123" | docker login nexus.local --username admin --password-stdin
 
-keytool -importkeystore \
-    -deststorepass password -destkeypass password \
-    -destkeystore keystore.jks \
-    -srckeystore certs/nexus.p12 -srcstoretype PKCS12 \
-    -srcstorepass password -alias nexus
+docker pull nexus.local/nginx:latest
+docker tag nexus.local/nginx:latest nexus.local/docker-repo/nginx:latest
+docker push nexus.local/docker-repo/nginx:latest
 
-openssl req -x509 -nodes -newkey rsa:4096 -days 365 \
-    -subj "/CN=nexus.local" \
-    -addext "subjectAltName = DNS:DNS:nexus.local, IP:127.0.0.1" \
-    -keyout certs/nexus.key \
-    -out certs/nexus.cert
+docker logout nexus.local
