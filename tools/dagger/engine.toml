@@ -2,7 +2,7 @@ debug = true
 trace = false
 insecure-entitlements = ["security.insecure"]
 
-[registry."nexus-registry:5443"]
+[registry."nexus.local:443"]
   http = true
   insecure = true
 

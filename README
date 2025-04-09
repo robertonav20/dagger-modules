@@ -58,20 +58,20 @@ git remote remove gitea && git remote add gitea http://admin:admin@localhost:300
 git remote remove gitea && git remote add gitea http://admin:admin@localhost:3000/admin/spring-petclinic.git && git push --force gitea
 
 ## Cenerate certificate nexus docker
-openssl req -x509 -newkey rsa:4096 -sha256 -days 365 -nodes \
-    -keyout certs/nexus-registry.key -out certs/nexus-registry.crt \
-    -subj "/CN=*" \
-    -addext "subjectAltName = DNS:nexus-registry, DNS:localhost, DNS:172.*.*.*"
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/nexus.key -out certs/nexus.crt -config certs/cert.cnf
 
-keytool \
-    -genkeypair \
-    -keystore keystore.jks \
-    -storepass password \
-    -keypass password \
-    -alias jetty \
-    -keyalg RSA \
-    -keysize 2048 \
-    -validity 5000 \
-    -dname "CN=*.nexus-registry, OU=Nexus, O=Sonatype, L=Unspecified, ST=Unspecified, C=US" \
-    -ext "SAN=DNS:nexus,DNS:nexus-registry,IP:172.18.0.7" \
-    -ext "BC=ca:true"
+openssl pkcs12 -export -in certs/nexus.crt -inkey certs/nexus.key \
+    -out certs/nexus.p12 -name nexus \
+    -passout pass:password
+
+keytool -importkeystore \
+    -deststorepass password -destkeypass password \
+    -destkeystore keystore.jks \
+    -srckeystore certs/nexus.p12 -srcstoretype PKCS12 \
+    -srcstorepass password -alias nexus
+
+openssl req -x509 -nodes -newkey rsa:4096 -days 365 \
+    -subj "/CN=nexus.local" \
+    -addext "subjectAltName = DNS:DNS:nexus.local, IP:127.0.0.1" \
+    -keyout certs/nexus.key \
+    -out certs/nexus.cert
