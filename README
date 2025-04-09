@@ -63,7 +63,7 @@ git remote remove gitea && git remote add gitea http://admin:admin123@localhost:
 1. Create admin user with admin123 password
 2. Create a docker proxy named docker-proxy with port 8082 anynonymous pull true and docker-hub (registry-1.docker.io) as remote storage
 3. Create a docker hosted named docker-repo with port 8083 and anynonymous pull true
-
+4. Enable "Docker Bearer Token Realm" in "Security -> Realms"
 
 ### Jenkins
 CRUMB_NEW=$(curl -s "http://admin:11b30e06526b59669fe8fd7e61a7ab17ab@localhost:8090/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)") \
