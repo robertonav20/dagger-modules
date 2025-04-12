@@ -1,4 +1,5 @@
 services:
+
   dagger:
     hostname: dagger
     container_name: dagger
@@ -18,7 +19,7 @@ services:
   jaeger:
     hostname: jaeger
     container_name: jaeger
-    image: jaegertracing/all-in-one:latest
+    image: jaegertracing/jaeger:2.5.0
     restart: always
     ports:
       - "14268:14268"
@@ -78,11 +79,8 @@ services:
         GITEA_PASSWORD: ${GITEA_PASSWORD}
         NEXUS_USER: ${NEXUS_USER}
         NEXUS_PASSWORD: ${NEXUS_PASSWORD}
-        JENKINS_ADMIN_USER: ${JENKINS_ADMIN_USER}
-        JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD}
-        JENKINS_FOLDER: ${JENKINS_FOLDER}
-    group_add:
-      - 999
+        JENKINS_USER: ${JENKINS_USER}
+        JENKINS_PASSWORD: ${JENKINS_PASSWORD}
     privileged: true
     ports:
       - "8090:8080"
@@ -91,8 +89,6 @@ services:
       - "nginx:nexus.local"
     volumes:
       - jenkins:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /usr/bin/docker:/usr/bin/docker
 
 volumes:
   dagger-engine:

@@ -9,8 +9,8 @@ import com.cloudbees.plugins.credentials.impl.*
 def instance = Jenkins.getInstance()
 
 // Define the default admin username and password
-def adminUsername = System.getenv("JENKINS_ADMIN_USER") ?: "admin"
-def adminPassword = System.getenv("JENKINS_ADMIN_PASSWORD") ?: "admin"
+def adminUsername = System.getenv("JENKINS_USER") ?: "admin"
+def adminPassword = System.getenv("JENKINS_PASSWORD") ?: "admin"
 
 // Create a security realm (auth system)
 def hudsonRealm = new HudsonPrivateSecurityRealm(false)
