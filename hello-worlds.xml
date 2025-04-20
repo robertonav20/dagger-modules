@@ -36,12 +36,12 @@
             <jenkins.branch.BranchSource>
                 <source class="jenkins.scm.impl.SingleSCMSource" plugin="scm-api@704.v3ce5c542825a_">
                     <id>b14c8589-741c-40f6-bbdb-8cb445f9d9a9</id>
-                    <name>spring-petclinic</name>
+                    <name>hello-world</name>
                     <scm class="hudson.plugins.git.GitSCM" plugin="git@5.7.0">
                         <configVersion>2</configVersion>
                         <userRemoteConfigs>
                             <hudson.plugins.git.UserRemoteConfig>
-                                <url>http://gitea:3000/dagger/spring-petclinic.git</url>
+                                <url>http://gitea:3000/admin/hello-world.git</url>
                                 <credentialsId>gitea-credentials</credentialsId>
                             </hudson.plugins.git.UserRemoteConfig>
                         </userRemoteConfigs>

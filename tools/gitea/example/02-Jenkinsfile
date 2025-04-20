@@ -7,7 +7,7 @@ pipeline {
 
   environment {
     DAGGER_NO_NAG = 1
-    DAGGER_VERSION = "0.18.1"
+    DAGGER_VERSION = "0.18.3"
     PATH = "/tmp/dagger/bin:$PATH"
     _EXPERIMENTAL_DAGGER_RUNNER_HOST = "tcp://dagger:1234"
   }

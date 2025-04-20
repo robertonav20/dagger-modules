@@ -8,7 +8,7 @@ pipeline {
   // assumes that the Dagger Cloud token
   // is in a Jenkins credential named DAGGER_CLOUD_TOKEN
   environment {
-    DAGGER_VERSION = "0.18.1"
+    DAGGER_VERSION = "0.18.3"
     PATH = "/tmp/dagger/bin:$PATH"
     DAGGER_NO_NAG = 1
   }

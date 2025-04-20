@@ -7,6 +7,12 @@ services:
     build:
       context: ./dagger
       dockerfile: Dockerfile
+    environment:
+      OTEL_SERVICE_NAME: dagger
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: none
     restart: always
     privileged: true
     ports:

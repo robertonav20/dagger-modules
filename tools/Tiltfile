@@ -61,7 +61,6 @@ docker_build(
     build_args = BUILD_ARGS
 )
 
-
 docker_compose( configPaths = './docker-compose.yaml')
 
 dc_resource(name = 'dagger', labels = ['Services'])
