@@ -54,16 +54,16 @@ export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/go/java-build ca
 ### Add repot to gitea
 git remote remove dagger-modules || true && \
     git remote add dagger-modules http://admin:admin123@localhost:3000/admin/dagger-modules.git && \
-    git checkout -b main && \
-    git commit -m "initial commit" && \
+    git checkout -b main || true && \
     git add . && \
-    git push --force dagger-modules
+    git commit -m "initial commit" && \
+    git push --force-with-lease dagger-modules main
 
 git remote remove hello-world || true && \
     git remote add hello-world http://admin:admin123@localhost:3000/admin/hello-world.git && \
-    git checkout -b main && \
-    git commit -m "initial commit" && \
+    git checkout -b main || true  && \
     git add . && \
+    git commit -m "initial commit" && \
     git push --force-with-lease hello-world main
 
 ### Cenerate certificate nexus docker
