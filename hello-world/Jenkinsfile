@@ -18,7 +18,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USER')]) {
                     sh '''
                         curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR=/tmp/dagger/bin DAGGER_VERSION=$DAGGER_VERSION sh
-                        rm -rf dagger-modules && git clone http://gitea:3000/dagger/dagger-modules/ dagger-modules
+                        rm -rf dagger-modules && git clone http://gitea:3000/admin/dagger-modules/ dagger-modules
                         dagger call -m ./dagger-modules/java/java-build publish \
                         --source=./ \
                         --repository "nexus.local" \
