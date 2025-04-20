@@ -52,8 +52,19 @@ export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/go/java-build ca
 ## Useful commands
 
 ### Add repot to gitea
-git remote remove gitea || true && git remote add gitea http://admin:admin123@localhost:3000/admin/dagger-modules.git && git add . && git push --force gitea
-git remote remove gitea || true && git remote add gitea http://admin:admin123@localhost:3000/admin/hello-world.git && git add. && git push --force gitea
+git remote remove dagger-modules || true && \
+    git remote add dagger-modules http://admin:admin123@localhost:3000/admin/dagger-modules.git && \
+    git checkout -b main && \
+    git commit -m "initial commit" && \
+    git add . && \
+    git push --force dagger-modules
+
+git remote remove hello-world || true && \
+    git remote add hello-world http://admin:admin123@localhost:3000/admin/hello-world.git && \
+    git checkout -b main && \
+    git commit -m "initial commit" && \
+    git add . && \
+    git push --force-with-lease hello-world main
 
 ### Cenerate certificate nexus docker
 1. openssl req -x509 -nodes -newkey rsa:4096 -days 365 -subj "/CN=nexus.local" -addext "subjectAltName = DNS:DNS:nexus.local, IP:127.0.0.1" -keyout certs/nexus.key -out certs/nexus.cert
