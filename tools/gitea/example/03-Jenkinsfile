@@ -24,7 +24,7 @@ pipeline {
               --repository "nexus.local" \
               --username $NEXUS_USER \
               --password env:NEXUS_PASSWORD \
-              --appName "docker-repo/spring-petclinic" \
+              --appName "docker-repo/hello-world" \
               --version 1.0.0
           '''
         }

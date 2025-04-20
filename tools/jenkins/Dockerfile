@@ -1,4 +1,4 @@
-FROM jenkins/jenkins:latest
+FROM jenkins/jenkins:2.506-jdk17
 
 ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false -Djenkins.install.SetupWizard.adminInitialApiToken=true"
 
@@ -9,7 +9,7 @@ RUN jenkins-plugin-cli --plugins \
     workflow-aggregator:608.v67378e9d3db_1 \
     ws-cleanup:0.48 \
     gitea:238.v626a_cf5e1940 \
-    opentelemetry:3.1495.v64dcff5b_7a_6c
+    opentelemetry:3.1505.v69c4d7c9ee62
 
 # Set Docker binaries in PATH
 # ENV PATH=$PATH:/usr/bin/docker

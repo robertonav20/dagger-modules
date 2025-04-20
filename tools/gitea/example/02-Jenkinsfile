@@ -21,7 +21,7 @@ pipeline {
           dagger call -m ./dagger-modules/java/java-build publish \
             --source=./ \
             --repository ttl.sh \
-            --appName spring-petclinic \
+            --appName hello-world \
             --version 1.0.0
         '''
       }

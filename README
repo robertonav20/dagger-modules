@@ -12,40 +12,40 @@ dagger develop --sdk=go --source=./
 dagger -m ../dagger-modules/java/java-build call publish \
     --source=./ \
     --repository ttl.sh \
-    --appName spring-petclinic \
+    --appName hello-world \
     --version 1.0.0
 export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/java/java-build call publish \
     --source=./ \
     --repository "nexus.local" \
     --username admin \
     --password env:JENKINS_PASSWORD \
-    --appName "docker-repo/spring-petclinic" \
+    --appName "docker-repo/hello-world" \
     --version 1.0.0
 
 dagger -m ../dagger-modules/typescript/java-build call publish \
     --source=./ \
     --repository ttl.sh \
-    --appName spring-petclinic \
+    --appName hello-world \
     --version 1.0.0
 export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/typescript/java-build call publish \
     --source=./ \
     --repository "nexus.local" \
     --username admin \
     --password env:JENKINS_PASSWORD \
-    --appName "docker-repo/spring-petclinic" \
+    --appName "docker-repo/hello-world" \
     --version 1.0.0
 
 dagger -m ../dagger-modules/go/java-build call publish \
     --source=./ \
     --repository ttl.sh \
-    --appName spring-petclinic \
+    --appName hello-world \
     --version 1.0.0
 export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/go/java-build call publishWithAuth \
     --source=./ \
     --repository "nexus.local" \
     --username admin \
     --password env:JENKINS_PASSWORD \
-    --appName "docker-repo/spring-petclinic" \
+    --appName "docker-repo/hello-world" \
     --version 1.0.0
 
 
@@ -71,20 +71,21 @@ git remote remove hello-world || true && \
 2. Insert into nginx/certs folder
 
 ### Nexus
-1. Create admin user with admin123 password
-2. Create a docker proxy named docker-proxy with port 8082 anynonymous pull true and docker-hub (registry-1.docker.io) as remote storage
-3. Create a docker hosted named docker-repo with port 8083 and anynonymous pull true
-4. Enable "Docker Bearer Token Realm" in "Security -> Realms"
+1. Discover password with docker exec -it nexus cat /nexus-data/admin.password
+2. Create admin user with admin123 password
+3. Create a docker proxy named docker-proxy with port 8082 anynonymous pull true and docker-hub (http://registry-1.docker.io) as remote storage
+4. Create a docker hosted named docker-repo with port 8083 and anynonymous pull true
+5. Enable "Docker Bearer Token Realm" in "Security -> Realms"
 
 Follow this guide in case is not clear https://medium.com/@sametustaoglu/nexus-proxy-docker-repository-with-nginx-and-traefik-018dd6b04f72
 
 ### Jenkins
-CRUMB_NEW=$(curl -s 'http://admin:119aa03ac9b5b7f20f7622c561c363b06f@localhost:8090/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)') \
+CRUMB_NEW=$(curl -s 'http://admin:11707283f4d6b11721cef78eeeeb8a6b38@localhost:8090/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)') \
     && curl -s -X POST \
         -H $CRUMB_NEW \
-        "http://admin:119aa03ac9b5b7f20f7622c561c363b06f@localhost:8090/createItem?name=spring-petclinic" \
+        "http://admin:11707283f4d6b11721cef78eeeeb8a6b38@localhost:8090/createItem?name=hello-world" \
         --header "Content-Type: application/xml" \
-        -d @spring-petclinic.xml
+        -d @hello-world.xml
 
 ### Docker
 echo "admin123" | docker login nexus.local --username admin --password-stdin
