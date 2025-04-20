@@ -10,6 +10,7 @@ services:
     environment:
       OTEL_SERVICE_NAME: dagger
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
       OTEL_TRACES_EXPORTER: otlp
       OTEL_METRICS_EXPORTER: none
       OTEL_LOGS_EXPORTER: none
@@ -87,6 +88,13 @@ services:
         NEXUS_PASSWORD: ${NEXUS_PASSWORD}
         JENKINS_USER: ${JENKINS_USER}
         JENKINS_PASSWORD: ${JENKINS_PASSWORD}
+    environment:
+      # OTEL_SERVICE_NAME: jenkins
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: none
     privileged: true
     ports:
       - "8090:8080"
