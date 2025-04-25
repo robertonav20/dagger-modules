@@ -21,26 +21,33 @@ import (
 
 type JavaBuild struct{}
 
-func (m *JavaBuild) Publish(source *dagger.Directory, repository string, appName string, version string) (string, error) {
+func (m *JavaBuild) Publish(source *dagger.Directory, imageRepository string, imageName string, imageVersion string) (string, error) {
 	Test(source)
 	ctx := context.Background()
-	return Build(source).
-		Publish(ctx, repository + "/" + appName + ":" + version)
+	var target = BuildArtifact(source);
+	return BuildImage(target).
+		Publish(ctx, imageRepository + "/" + imageName + ":" + imageVersion)
 }
 
-func (m *JavaBuild) PublishWithAuth(source *dagger.Directory, repository string, username string, password *dagger.Secret, appName string, version string) (string, error) {
+func (m *JavaBuild) PublishWithAuth(source *dagger.Directory, username string, password *dagger.Secret, artifactRepository string, artifactName string, artifactVersion string, imageRepository string, imageName string, imageVersion string) (string, error) {
 	Test(source)
 	ctx := context.Background()
-	return Build(source).
-		WithRegistryAuth(repository, username, password).
-		Publish(ctx, repository + "/" + appName + ":" + version)
+	var target = BuildArtifact(source);
+	// Deploy(target, username, password, artifactRepository, artifactName, artifactVersion)
+	return BuildImage(target).
+		WithRegistryAuth(imageRepository, username, password).
+		Publish(ctx, imageRepository + "/" + imageName + ":" + imageVersion)
 }
 
 /** Build the application container */
-func Build(source *dagger.Directory) *dagger.Container {
-	var build = BuildEnv(source).
+func BuildArtifact(source *dagger.Directory) *dagger.Container {
+	return Maven(source).
 		WithExec([]string{"mvn", "clean", "package", "-DskipTests"}).
 		Directory("./target")
+}
+
+/** Build the application container */
+func BuildImage(build *dagger.Directory) *dagger.Container {
 	return dag.
 		Container().
 		From("eclipse-temurin:17-jre-alpine").
@@ -51,13 +58,13 @@ func Build(source *dagger.Directory) *dagger.Container {
 
 func Test(source *dagger.Directory) (string, error) {
 	ctx := context.Background()
-	return BuildEnv(source).
+	return Maven(source).
 		WithExec([]string{"mvn", "test"}).
 		Stdout(ctx)
 }
 
 // Returns lines that match a pattern in the files of the provided Directory
-func BuildEnv(source *dagger.Directory) *dagger.Container {
+func Maven(source *dagger.Directory) *dagger.Container {
 	var m2Cache = dag.CacheVolume("m2")
 	return dag.
 		Container().
@@ -65,4 +72,25 @@ func BuildEnv(source *dagger.Directory) *dagger.Container {
 		WithDirectory("/src", source).
 		WithMountedCache("/root/.m2", m2Cache).
 		WithWorkdir("/src")
+}
+
+
+// Returns lines that match a pattern in the files of the provided Directory
+// TODO configure credentials
+func Deploy(source *dagger.Directory, username string, password *dagger.Secret, url string, artifactId string, version string) *dagger.Container {
+	ctx := context.Background()
+	return Maven(source).
+		WithEnvVariable([]string{"NEXUS_SERVER_USERNAME", username}).
+		WithEnvVariable([]string{"NEXUS_SERVER_PASSWORD", password.plaintext()}).
+		WithExec([]string{"mvn", "deploy:deploy-file",
+			"-DgroupId=com.example",
+			"-DartifactId=" + artifactId,
+			"-Dversion=" + version,
+			"-Dpackaging=jar",
+			"-Dfile=app.jar",
+			"-DrepositoryId=maven-releases",
+			"-Durl=" + url,
+			"-DserverId=nexus-server",
+		}).
+		Stdout(ctx)
 }

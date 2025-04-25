@@ -21,11 +21,14 @@ pipeline {
             rm -rf dagger-modules && git clone http://gitea:3000/admin/dagger-modules/ dagger-modules
             dagger call -m ./dagger-modules/java/java-build publish \
               --source=./ \
-              --repository "nexus.local" \
               --username $NEXUS_USER \
               --password env:NEXUS_PASSWORD \
-              --appName "docker-repo/hello-world" \
-              --version 1.0.0
+              --artifactRepository "nexus.local" \
+              --artifactId "hello-world" \
+              --artifactVersion 1.0.0 \
+              --imageRepository "nexus.local" \
+              --imageName "docker-repo/hello-world" \
+              --imageVersion 1.0.0
           '''
         }
       }

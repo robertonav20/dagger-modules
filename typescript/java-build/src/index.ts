@@ -20,24 +20,34 @@ export class TypescriptBuild {
 
   /** Publish the application container after building and testing it on-the-fly */
   @func()
-  async publish(source: Directory, repository: string, username?: string, password?: Secret, appName: string, version: string): Promise<string> {
+  async publish(source: Directory, imageRepository: string, imageName: string, imageVersion: string, artifactRepository?: string, artifactName?: string, artifactVersion?: string, username?: string, password?: Secret): Promise<string> {
     await this.test(source);
+    const target = await this.buildArtifact(source);
+
     if (password) {
-      return this.build(source)
-        .withRegistryAuth(repository, username, password)
-        .publish(repository + "/" + appName + "-" + version);
+      if (artifactRepository && artifactName && artifactVersion) {
+        // await this.deploy(target, artifactRepository, artifactName, artifactVersion, username, password);
+      }
+      return this.buildImage(target)
+        .withRegistryAuth(imageRepository, username, password)
+        .publish(imageRepository + "/" + imageName + "-" + imageVersion);
     }
 
-    return this.build(source)
-        .publish(repository + "/" + appName + "-" + version);
+    return this.buildImage(target)
+        .publish(imageRepository + "/" + imageName + "-" + imageVersion);
   }
 
   /** Build the application container */
   @func()
-  build(source: Directory): Container {
-    const build = this.buildEnv(source)
+  buildArtifact(source: Directory): Container {
+    return this.maven(source)
       .withExec(["mvn", "clean", "package", "-DskipTests"])
       .directory("./target");
+  }
+
+  /** Build the application container */
+  @func()
+  buildImage(build: Directory): Container {
     return dag.container()
       .from("eclipse-temurin:17-jre-alpine")
       .withDirectory("/app", build)
@@ -48,17 +58,36 @@ export class TypescriptBuild {
   /** Return the result of running unit tests */
   @func()
   async test(source: Directory): Promise<string> {
-    return this.buildEnv(source).withExec(["mvn", "test"]).stdout();
+    return this.maven(source).withExec(["mvn", "test"]).stdout();
   }
 
   /** Build a ready-to-use development environment */
   @func()
-  buildEnv(source: Directory): Container {
+  maven(source: Directory): Container {
     const m2Cache = dag.cacheVolume("m2");
     return dag.container()
       .from("maven:3.9-eclipse-temurin-17-alpine")
       .withDirectory("/src", source)
       .withMountedCache("/root/.m2", m2Cache)
       .withWorkdir("/src");
+  }
+
+  /** Build a ready-to-use development environment */
+  // TODO configure credentials
+  @func()
+  deploy(source: Directory, url?: string, artifactId?: string, version?: string, username?: string, password?: Secret): Container {
+    const m2Cache = dag.cacheVolume("m2");
+    return this.maven(source)
+        .withEnvVariable("NEXUS_SERVER_USERNAME", username)
+        .withEnvVariable("NEXUS_SERVER_PASSWORD", password.plaintext())
+        .withExec(["mvn", "deploy:deploy-file",
+            "-DgroupId=com.example",
+            "-DartifactId=" + artifactId,
+            "-Dversion=" + version,
+            "-Dpackaging=jar",
+            "-Dfile=app.jar",
+            "-DrepositoryId=maven-releases",
+            "-Durl=" + url,
+            "-DserverId=nexus-server"]);
   }
 }

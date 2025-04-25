@@ -20,9 +20,9 @@ pipeline {
           rm -rf dagger-modules && git clone http://gitea:3000/admin/dagger-modules/ dagger-modules
           dagger call -m ./dagger-modules/java/java-build publish \
             --source=./ \
-            --repository ttl.sh \
-            --appName hello-world \
-            --version 1.0.0
+            --imageRepository ttl.sh \
+            --imageName hello-world \
+            --imageVersion 1.0.0
         '''
       }
     }

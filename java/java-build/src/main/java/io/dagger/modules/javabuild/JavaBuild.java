@@ -22,31 +22,36 @@ public class JavaBuild {
   @Function
   public String publish(
       @DefaultPath("/") Directory source,
-      String repository,
       Optional<String> username,
       Optional<Secret> password,
-      String appName,
-      String version)
+      Optional<String> artifactRepository,
+      Optional<String> artifactId,
+      Optional<String> artifactVersion,
+      String imageRepository,
+      String imageName,
+      String imageVersion)
       throws InterruptedException, ExecutionException, DaggerQueryException {
     test(source);
     Directory target = buildArtifact(source);
 
     if (password.isPresent()) {
-      deploy(target, repository, username.get(), password.get(), appName, version);
+      if (artifactRepository.isPresent() && artifactId.isPresent() && artifactVersion.isPresent()) {
+        // deploy(target, username.get(), password.get(), artifactRepository.get(), artifactId.get(), artifactVersion.get());
+      }
       return buildImage(target)
-        .withRegistryAuth(repository, username.get(), password.get())
-        .publish(String.format("%s/%s:%s", repository, appName, version));
+        .withRegistryAuth(imageRepository, username.get(), password.get())
+        .publish(String.format("%s/%s:%s", imageRepository, imageName, imageVersion));
     }
 
     return buildImage(target)
-      .publish(String.format("%s/%s:%s", repository, appName, version));
+      .publish(String.format("%s/%s:%s", imageRepository, imageName, imageVersion));
   }
 
   /** Build the application container */
   @Function
   public Directory buildArtifact(@DefaultPath("/") Directory source)
       throws InterruptedException, ExecutionException, DaggerQueryException {
-    return buildEnv(source)
+    return maven(source)
         .withExec(List.of("mvn", "clean", "package", "-DskipTests"))
         .directory("./target");
   }
@@ -66,12 +71,12 @@ public class JavaBuild {
   @Function
   public String test(@DefaultPath("/") Directory source)
       throws InterruptedException, ExecutionException, DaggerQueryException {
-    return buildEnv(source).withExec(List.of("mvn", "test")).stdout();
+    return maven(source).withExec(List.of("mvn", "test")).stdout();
   }
 
   /** Build a ready-to-use development environment */
   @Function
-  public Container buildEnv(@DefaultPath("/") Directory source)
+  public Container maven(@DefaultPath("/") Directory source)
       throws InterruptedException, ExecutionException, DaggerQueryException {
     CacheVolume m2Cache = dag().cacheVolume("m2");
     return dag().container()
@@ -82,17 +87,18 @@ public class JavaBuild {
   }
 
   /** Deploy the application artifact to Nexus repository */
+  // TODO configure credentials
   @Function
   public Container deploy(
       @DefaultPath("/") Directory source,
-      String url,
       String username,
       Secret password,
+      String url,
       String artifactId,
       String version)
       throws InterruptedException, ExecutionException, DaggerQueryException {
     // Assuming the built artifact is located in the target directory
-    return buildEnv(source)
+    return maven(source)
         .withEnvVariable("NEXUS_SERVER_USERNAME", username)
         .withEnvVariable("NEXUS_SERVER_PASSWORD", password.plaintext())
         .withExec(List.of("mvn", "deploy:deploy-file",
