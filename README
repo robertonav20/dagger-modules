@@ -5,9 +5,6 @@ dagger develop --sdk=java --source=./
 dagger init --sdk=typescript --source=./ --name=java-build
 dagger develop --sdk=typescript --source=./
 
-dagger init --sdk=go --source=./ --name=java-build
-dagger develop --sdk=go --source=./
-
 ## How to Use
 dagger -m ../dagger-modules/java/java-build call publish \
     --source=./ \
@@ -31,22 +28,6 @@ dagger -m ../dagger-modules/typescript/java-build call publish \
     --imageName hello-world \
     --imageVersion 1.0.0
 export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/typescript/java-build call publish \
-    --source=./ \
-    --username admin \
-    --password env:JENKINS_PASSWORD \
-    --artifactRepository "nexus.local" \
-    --artifactId "hello-world" \
-    --artifactVersion 1.0.0 \
-    --imageRepository "nexus.local" \
-    --imageName "docker-repo/hello-world" \
-    --imageVersion 1.0.0
-
-dagger -m ../dagger-modules/go/java-build call publish \
-    --source=./ \
-    --imageRepository ttl.sh \
-    --imageName hello-world \
-    --imageVersion 1.0.0
-export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/go/java-build call publishWithAuth \
     --source=./ \
     --username admin \
     --password env:JENKINS_PASSWORD \

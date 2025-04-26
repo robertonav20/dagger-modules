@@ -18,7 +18,25 @@ import io.dagger.module.annotation.Object;
 @Object
 public class JavaBuild {
 
-  /** Publish the application container after building and testing it on-the-fly */
+  /**
+   * Publishes the application to a Docker registry.
+   *
+   * @param source     The directory containing the built artifacts (default: "/").
+   * @param username   The username for authentication with the Docker registry (optional).
+   * @param password   The password for authentication with the Docker registry (optional).
+   * @param artifactRepository  The repository URL for the Docker image (optional).
+   * @param artifactId        The ID of the Docker image (optional).
+   * @param artifactVersion   The version of the Docker image (optional).
+   * @param imageRepository  The repository URL for the Docker image.
+   * @param imageName         The name of the Docker image.
+   * @param imageVersion      The version of the Docker image.
+   *
+   * @return A string representing the result of the publishing operation.
+   *
+   * @throws InterruptedException if the thread is interrupted while waiting for the operation to complete.
+   * @throws ExecutionException if an error occurs during execution of the operation.
+   * @throws DaggerQueryException if a query-related error occurs.
+   */
   @Function
   public String publish(
       @DefaultPath("/") Directory source,
@@ -47,7 +65,13 @@ public class JavaBuild {
       .publish(String.format("%s/%s:%s", imageRepository, imageName, imageVersion));
   }
 
-  /** Build the application container */
+  /**
+   * Builds the application container. This method is responsible for compiling and packaging
+   * the Java application into a container.
+   *
+   * @param source The directory containing the Java project.
+   * @return A Directory object representing the built container.
+   */
   @Function
   public Directory buildArtifact(@DefaultPath("/") Directory source)
       throws InterruptedException, ExecutionException, DaggerQueryException {
@@ -56,7 +80,12 @@ public class JavaBuild {
         .directory("./target");
   }
 
-  /** Build the application container */
+  /**
+   * Builds a Docker image from the provided build directory.
+   *
+   * @param build The directory containing the built application artifacts.
+   * @return A Container object representing the built Docker image.
+   */
   @Function
   public Container buildImage(@DefaultPath("/") Directory build)
       throws InterruptedException, ExecutionException, DaggerQueryException {
@@ -87,7 +116,6 @@ public class JavaBuild {
   }
 
   /** Deploy the application artifact to Nexus repository */
-  // TODO configure credentials
   @Function
   public Container deploy(
       @DefaultPath("/") Directory source,
