@@ -9,7 +9,8 @@ RUN jenkins-plugin-cli --plugins \
     workflow-aggregator:608.v67378e9d3db_1 \
     ws-cleanup:0.48 \
     gitea:238.v626a_cf5e1940 \
-    opentelemetry:3.1505.v69c4d7c9ee62
+    opentelemetry:3.1523.v0b_3ce640987d \
+    pipeline-graph-view:504.vb_643f0e2e9c0
 
 # Set Docker binaries in PATH
 # ENV PATH=$PATH:/usr/bin/docker
