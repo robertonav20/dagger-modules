@@ -1,4 +1,4 @@
-debug = true
+debug = false
 trace = false
 insecure-entitlements = ["security.insecure"]
 

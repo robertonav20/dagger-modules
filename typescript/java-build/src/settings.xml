@@ -1,0 +1,9 @@
+<settings>
+    <servers>
+        <server>
+            <id>server</id>
+            <username>${env.SERVER_USERNAME}</username>
+            <password>${env.SERVER_PASSWORD}</password>
+        </server>
+    </servers>
+</settings>

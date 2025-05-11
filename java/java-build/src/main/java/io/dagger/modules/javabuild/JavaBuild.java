@@ -1,13 +1,12 @@
 package io.dagger.modules.javabuild;
 
 import static io.dagger.client.Dagger.dag;
-
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import io.dagger.client.CacheVolume;
 import io.dagger.client.Container;
-import io.dagger.client.DaggerQueryException;
 import io.dagger.client.Directory;
 import io.dagger.client.Secret;
 import io.dagger.module.annotation.DefaultPath;
@@ -33,9 +32,7 @@ public class JavaBuild {
    *
    * @return A string representing the result of the publishing operation.
    *
-   * @throws InterruptedException if the thread is interrupted while waiting for the operation to complete.
-   * @throws ExecutionException if an error occurs during execution of the operation.
-   * @throws DaggerQueryException if a query-related error occurs.
+   * @throws Exception
    */
   @Function
   public String publish(
@@ -48,21 +45,55 @@ public class JavaBuild {
       String imageRepository,
       String imageName,
       String imageVersion)
-      throws InterruptedException, ExecutionException, DaggerQueryException {
+      throws Exception {
+    System.out.println("Running Test");
     test(source);
+
+    System.out.println("Build Artifact");
     Directory target = buildArtifact(source);
 
     if (password.isPresent()) {
       if (artifactRepository.isPresent() && artifactId.isPresent() && artifactVersion.isPresent()) {
-        // deploy(target, username.get(), password.get(), artifactRepository.get(), artifactId.get(), artifactVersion.get());
+        System.out.println("Deploying artifact");
+        deploy(target, username.get(), password.get(), artifactRepository.get(), artifactId.get(), artifactVersion.get());
       }
+
+      System.out.println("Build and Push image");
       return buildImage(target)
         .withRegistryAuth(imageRepository, username.get(), password.get())
         .publish(String.format("%s/%s:%s", imageRepository, imageName, imageVersion));
     }
 
+    System.out.println("Build and Push image");
     return buildImage(target)
       .publish(String.format("%s/%s:%s", imageRepository, imageName, imageVersion));
+  }
+
+  /**
+   * Builds a Docker image from the provided build directory.
+   *
+   * @param build The directory containing the built application artifacts.
+   * @return A Container object representing the built Docker image.
+   */
+  @Function
+  public Container buildImage(@DefaultPath("/") Directory build)
+      throws Exception {
+    return dag().container()
+        .from("eclipse-temurin:17-jre-alpine")
+        .withDirectory("/app", build)
+        .withExposedPort(8080)
+        .withEntrypoint(List.of("java", "-jar", "/app/app.jar"));
+  }
+
+  /** Return the result of running unit tests */
+  @Function
+  public String test(@DefaultPath("/") Directory source)
+      throws Exception {
+    return maven()
+        .withDirectory("/src", source)
+        .withWorkdir("/src")
+        .withExec(List.of("mvn", "test"))
+        .stdout();
   }
 
   /**
@@ -74,69 +105,51 @@ public class JavaBuild {
    */
   @Function
   public Directory buildArtifact(@DefaultPath("/") Directory source)
-      throws InterruptedException, ExecutionException, DaggerQueryException {
-    return maven(source)
+      throws Exception {
+    return maven()
+        .withDirectory("/src", source)
+        .withWorkdir("/src")
         .withExec(List.of("mvn", "clean", "package", "-DskipTests"))
         .directory("./target");
   }
 
-  /**
-   * Builds a Docker image from the provided build directory.
-   *
-   * @param build The directory containing the built application artifacts.
-   * @return A Container object representing the built Docker image.
-   */
+  /** Deploy the application artifact to repository
+   * @throws IOException */
   @Function
-  public Container buildImage(@DefaultPath("/") Directory build)
-      throws InterruptedException, ExecutionException, DaggerQueryException {
-    return dag().container()
-        .from("eclipse-temurin:17-jre-alpine")
-        .withDirectory("/app", build)
-        .withExposedPort(8080)
-        .withEntrypoint(List.of("java", "-jar", "/app/app.jar"));
-  }
-
-  /** Return the result of running unit tests */
-  @Function
-  public String test(@DefaultPath("/") Directory source)
-      throws InterruptedException, ExecutionException, DaggerQueryException {
-    return maven(source).withExec(List.of("mvn", "test")).stdout();
-  }
-
-  /** Build a ready-to-use development environment */
-  @Function
-  public Container maven(@DefaultPath("/") Directory source)
-      throws InterruptedException, ExecutionException, DaggerQueryException {
-    CacheVolume m2Cache = dag().cacheVolume("m2");
-    return dag().container()
-        .from("maven:3.9-eclipse-temurin-17-alpine")
-        .withDirectory("/src", source)
-        .withMountedCache("/root/.m2", m2Cache)
-        .withWorkdir("/src");
-  }
-
-  /** Deploy the application artifact to Nexus repository */
-  @Function
-  public Container deploy(
-      @DefaultPath("/") Directory source,
+  public String deploy(
+      @DefaultPath("/") Directory target,
       String username,
       Secret password,
       String url,
       String artifactId,
       String version)
-      throws InterruptedException, ExecutionException, DaggerQueryException {
-    // Assuming the built artifact is located in the target directory
-    return maven(source)
-        .withEnvVariable("NEXUS_SERVER_USERNAME", username)
-        .withEnvVariable("NEXUS_SERVER_PASSWORD", password.plaintext())
+      throws Exception {
+    return maven()
+        .withEnvVariable("SERVER_USERNAME", username)
+        .withEnvVariable("SERVER_PASSWORD", password.plaintext())
+        .withDirectory("/target", target)
+        .withWorkdir("/target")
         .withExec(List.of("mvn", "deploy:deploy-file",
+            "-DgeneratePom=true",
+            "-DrepositoryId=server",
+            "-Durl=" + url,
+            "-Dfile=app.jar",
             "-DgroupId=com.example",
             "-DartifactId=" + artifactId,
             "-Dversion=" + version,
-            "-Dpackaging=jar",
-            "-Dfile=app.jar",
-            "-DrepositoryId=maven-releases",
-            "-Durl=" + url,
-            "-DserverId=nexus-server"));
+            "-Dpackaging=jar"))
+        .stdout();
+  }
+
+  /** Build a ready-to-use development environment */
+  @Function
+  public Container maven()
+      throws Exception {
+    String settings = new String(Thread.currentThread().getContextClassLoader().getResourceAsStream("settings.xml").readAllBytes(), StandardCharsets.UTF_8);
+    CacheVolume m2RepositoryCache = dag().cacheVolume("m2Repository");
+    return dag().container()
+        .from("maven:3.9-eclipse-temurin-17-alpine")
+        .withMountedCache("/root/.m2/repository", m2RepositoryCache)
+        .withNewFile("/root/.m2/settings.xml", settings);
   }
 }

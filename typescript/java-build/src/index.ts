@@ -14,6 +14,7 @@
  * if appropriate. All modules should have a short description.
  */
 import { dag, Container, Directory, Secret, object, func } from "@dagger.io/dagger"
+import * as settings from "./settings.xml"
 
 @object()
 export class TypescriptBuild {
@@ -26,7 +27,7 @@ export class TypescriptBuild {
 
     if (password) {
       if (artifactRepository && artifactName && artifactVersion) {
-        // await this.deploy(target, artifactRepository, artifactName, artifactVersion, username, password);
+        await this.deploy(target, artifactRepository, artifactName, artifactVersion, username, password);
       }
       return this.buildImage(target)
         .withRegistryAuth(imageRepository, username, password)
@@ -35,14 +36,6 @@ export class TypescriptBuild {
 
     return this.buildImage(target)
         .publish(imageRepository + "/" + imageName + "-" + imageVersion);
-  }
-
-  /** Build the application container */
-  @func()
-  buildArtifact(source: Directory): Container {
-    return this.maven(source)
-      .withExec(["mvn", "clean", "package", "-DskipTests"])
-      .directory("./target");
   }
 
   /** Build the application container */
@@ -58,36 +51,57 @@ export class TypescriptBuild {
   /** Return the result of running unit tests */
   @func()
   async test(source: Directory): Promise<string> {
-    return this.maven(source).withExec(["mvn", "test"]).stdout();
+    return this.maven()
+        .withDirectory("/src", source)
+        .withWorkdir("/src")
+        .withExec(["mvn", "test"])
+        .stdout();
   }
 
-  /** Build a ready-to-use development environment */
+  /**
+   * Builds the application container. This method is responsible for compiling and packaging
+   * the Java application into a container.
+   *
+   * @param source The directory containing the Java project.
+   * @return A Directory object representing the built container.
+   */
   @func()
-  maven(source: Directory): Container {
-    const m2Cache = dag.cacheVolume("m2");
-    return dag.container()
-      .from("maven:3.9-eclipse-temurin-17-alpine")
+  buildArtifact(source: Directory): Container {
+    return this.maven()
       .withDirectory("/src", source)
-      .withMountedCache("/root/.m2", m2Cache)
-      .withWorkdir("/src");
+      .withWorkdir("/src")
+      .withExec(["mvn", "clean", "package", "-DskipTests"])
+      .directory("./target");
   }
 
-  /** Build a ready-to-use development environment */
-  // TODO configure credentials
+  /** Deploy the application artifact to repository
+   * @throws IOException */
   @func()
-  deploy(source: Directory, url?: string, artifactId?: string, version?: string, username?: string, password?: Secret): Container {
-    const m2Cache = dag.cacheVolume("m2");
-    return this.maven(source)
-        .withEnvVariable("NEXUS_SERVER_USERNAME", username)
-        .withEnvVariable("NEXUS_SERVER_PASSWORD", password.plaintext())
+  deploy(target: Directory, url?: string, artifactId?: string, version?: string, username?: string, password?: Secret): String {
+    return this.maven()
+        .withEnvVariable("SERVER_USERNAME", username)
+        .withEnvVariable("SERVER_PASSWORD", password.plaintext())
+        .withDirectory("/target", target)
+        .withWorkdir("/target")
         .withExec(["mvn", "deploy:deploy-file",
+            "-DgeneratePom=true",
+            "-DrepositoryId=server",
+            "-Durl=" + url,
+            "-Dfile=app.jar",
             "-DgroupId=com.example",
             "-DartifactId=" + artifactId,
             "-Dversion=" + version,
-            "-Dpackaging=jar",
-            "-Dfile=app.jar",
-            "-DrepositoryId=maven-releases",
-            "-Durl=" + url,
-            "-DserverId=nexus-server"]);
+            "-Dpackaging=jar"])
+        .stdout();
+  }
+
+  /** Build a ready-to-use development environment */
+  @func()
+  maven(): Container {
+    const m2RepositoryCache = dag.cacheVolume("m2Repository");
+    return dag.container()
+      .from("maven:3.9-eclipse-temurin-17-alpine")
+      .withNewFile("/root/.m2/settings.xml", settings)
+      .withMountedCache("/root/.m2/repository", m2RepositoryCache);
   }
 }
