@@ -6,12 +6,12 @@ dagger init --sdk=typescript --source=./ --name=java-build
 dagger develop --sdk=typescript --source=./
 
 ## How to Use
-dagger -m .../java/java-build call publish \
+dagger -m ../modules/java/java-build call publish \
     --source=./ \
     --imageRepository ttl.sh \
     --imageName hello-world \
     --imageVersion 1.0.0
-export _EXPERIMENTAL_DAGGER_RUNNER_HOST="tcp://localhost:1234" && export NEXUS_USERNAME=admin && export NEXUS_PASSWORD=admin123 && dagger call -vvv -m ../java/java-build publish \
+export _EXPERIMENTAL_DAGGER_RUNNER_HOST="tcp://localhost:1234" && export NEXUS_USERNAME=admin && export NEXUS_PASSWORD=admin123 && dagger call -vvv -m ../modules/java/java-build publish \
     --source=./ \
     --username $NEXUS_USERNAME \
     --password env:NEXUS_PASSWORD \
@@ -22,12 +22,12 @@ export _EXPERIMENTAL_DAGGER_RUNNER_HOST="tcp://localhost:1234" && export NEXUS_U
     --image-name "docker-repo/hello-world" \
     --image-version 1.0.0
 
-dagger -m ../dagger-modules/typescript/java-build call publish \
+dagger -m ../modules/typescript/java-build call publish \
     --source=./ \
     --imageRepository ttl.sh \
     --imageName hello-world \
     --imageVersion 1.0.0
-export _EXPERIMENTAL_DAGGER_RUNNER_HOST="tcp://localhost:1234" && export NEXUS_USERNAME=admin && export NEXUS_PASSWORD=admin123 && dagger call -vvv -m ../typescript/java-build publish \
+export _EXPERIMENTAL_DAGGER_RUNNER_HOST="tcp://localhost:1234" && export NEXUS_USERNAME=admin && export NEXUS_PASSWORD=admin123 && dagger call -vvv -m ../modules/typescript/java-build publish \
     --source=./ \
     --username $NEXUS_USERNAME \
     --password env:NEXUS_PASSWORD \
