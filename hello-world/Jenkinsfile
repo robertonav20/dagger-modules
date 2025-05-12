@@ -23,12 +23,12 @@ pipeline {
                         --source=./ \
                         --username $NEXUS_USER \
                         --password env:NEXUS_PASSWORD \
-                        --artifactRepository "nexus.local" \
-                        --artifactId "hello-world" \
-                        --artifactVersion 1.0.0 \
-                        --imageRepository "nexus.local" \
-                        --imageName "docker-repo/hello-world" \
-                        --imageVersion 1.0.0
+                        --artifact-repository "http://nexus.local/repository/maven-releases" \
+                        --artifact-id "hello-world" \
+                        --artifact-version 1.0.0 \
+                        --image-repository "nexus.local" \
+                        --image-name "docker-repo/hello-world" \
+                        --image-version 1.0.0
                     '''
                 }
             }

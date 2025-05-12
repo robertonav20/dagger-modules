@@ -98,10 +98,8 @@ export class TypescriptBuild {
   /** Build a ready-to-use development environment */
   @func()
   maven(): Container {
-    const m2RepositoryCache = dag.cacheVolume("m2Repository");
     return dag.container()
       .from("maven:3.9-eclipse-temurin-17-alpine")
-      .withNewFile("/root/.m2/settings.xml", settings)
-      .withMountedCache("/root/.m2/repository", m2RepositoryCache);
+      .withNewFile("/root/.m2/settings.xml", settings);
   }
 }

@@ -6,37 +6,37 @@ dagger init --sdk=typescript --source=./ --name=java-build
 dagger develop --sdk=typescript --source=./
 
 ## How to Use
-dagger -m ../dagger-modules/java/java-build call publish \
+dagger -m .../java/java-build call publish \
     --source=./ \
     --imageRepository ttl.sh \
     --imageName hello-world \
     --imageVersion 1.0.0
-export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/java/java-build call publish \
+export _EXPERIMENTAL_DAGGER_RUNNER_HOST="tcp://localhost:1234" && export NEXUS_USERNAME=admin && export NEXUS_PASSWORD=admin123 && dagger call -vvv -m ../java/java-build publish \
     --source=./ \
-    --username admin \
-    --password env:JENKINS_PASSWORD \
-    --artifactRepository "nexus.local" \
-    --artifactId "hello-world" \
-    --artifactVersion 1.0.0 \
-    --imageRepository "nexus.local" \
-    --imageName "docker-repo/hello-world" \
-    --imageVersion 1.0.0
+    --username $NEXUS_USERNAME \
+    --password env:NEXUS_PASSWORD \
+    --artifact-repository "http://nexus.local/repository/maven-releases" \
+    --artifact-id "hello-world" \
+    --artifact-version 1.0.0 \
+    --image-repository "nexus.local" \
+    --image-name "docker-repo/hello-world" \
+    --image-version 1.0.0
 
 dagger -m ../dagger-modules/typescript/java-build call publish \
     --source=./ \
     --imageRepository ttl.sh \
     --imageName hello-world \
     --imageVersion 1.0.0
-export JENKINS_PASSWORD=admin123 && dagger -m ../dagger-modules/typescript/java-build call publish \
+export _EXPERIMENTAL_DAGGER_RUNNER_HOST="tcp://localhost:1234" && export NEXUS_USERNAME=admin && export NEXUS_PASSWORD=admin123 && dagger call -vvv -m ../typescript/java-build publish \
     --source=./ \
-    --username admin \
-    --password env:JENKINS_PASSWORD \
-    --artifactRepository "nexus.local" \
-    --artifactId "hello-world" \
-    --artifactVersion 1.0.0 \
-    --imageRepository "nexus.local" \
-    --imageName "docker-repo/hello-world" \
-    --imageVersion 1.0.0
+    --username $NEXUS_USERNAME \
+    --password env:NEXUS_PASSWORD \
+    --artifact-repository "http://nexus.local/repository/maven-releases" \
+    --artifact-id "hello-world" \
+    --artifact-version 1.0.0 \
+    --image-repository "nexus.local" \
+    --image-name "docker-repo/hello-world" \
+    --image-version 1.0.0
 
 
 ## Useful commands

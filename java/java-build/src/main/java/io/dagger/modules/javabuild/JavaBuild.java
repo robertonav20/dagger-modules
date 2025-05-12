@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
-import io.dagger.client.CacheVolume;
 import io.dagger.client.Container;
 import io.dagger.client.Directory;
 import io.dagger.client.Secret;
@@ -146,10 +145,8 @@ public class JavaBuild {
   public Container maven()
       throws Exception {
     String settings = new String(Thread.currentThread().getContextClassLoader().getResourceAsStream("settings.xml").readAllBytes(), StandardCharsets.UTF_8);
-    CacheVolume m2RepositoryCache = dag().cacheVolume("m2Repository");
     return dag().container()
         .from("maven:3.9-eclipse-temurin-17-alpine")
-        .withMountedCache("/root/.m2/repository", m2RepositoryCache)
         .withNewFile("/root/.m2/settings.xml", settings);
   }
 }
