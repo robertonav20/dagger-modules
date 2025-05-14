@@ -1,2 +1,59 @@
 server:
   port: 8080
+
+info:
+  app:
+    encoding: '@project.build.sourceEncoding@'
+  java:
+    source: '@java.version@'
+    target: '@java.version@'
+
+springdoc:
+  packagesToScan: 'com.example.app'
+  api-docs:
+    enabled: true
+    resolve-schema-properties: true
+  swagger-ui:
+    enabled: true
+    displayRequestDuration: true
+    operationsSorter: 'alpha'
+    tagsSorter: 'alpha'
+  show-actuator: true
+  writer-with-default-pretty-printer: true
+  writer-with-order-by-keys: true
+
+management:
+  httpexchanges:
+    recording:
+      enabled: true
+  info:
+    defaults:
+      enabled: true
+    build:
+      enabled: true
+    git:
+      enabled: true
+      mode: full
+    java:
+      enabled: true
+    env:
+      enabled: true
+    os:
+      enabled: true
+    process:
+      enabled: true
+    ssl:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    jmx:
+      exposure:
+        include: '*'
+    web:
+      exposure:
+        include: '*'
+
+hawtio:
+  authenticationEnabled: false
