@@ -9,7 +9,7 @@ RUN jenkins-plugin-cli --plugins \
     workflow-aggregator:608.v67378e9d3db_1 \
     ws-cleanup:0.48 \
     gitea:238.v626a_cf5e1940 \
-    opentelemetry:3.1523.v0b_3ce640987d \
+    opentelemetry:3.1525.v604f3b_1a_e07b_ \
     pipeline-graph-view:504.vb_643f0e2e9c0
 
 # Set Docker binaries in PATH
@@ -36,4 +36,3 @@ USER jenkins
 ADD groovy/admin.groovy /usr/share/jenkins/ref/init.groovy.d/
 ADD groovy/gitea.groovy /usr/share/jenkins/ref/init.groovy.d/
 ADD groovy/nexus.groovy /usr/share/jenkins/ref/init.groovy.d/
-ADD groovy/opentelemetry.groovy /usr/share/jenkins/ref/init.groovy.d/

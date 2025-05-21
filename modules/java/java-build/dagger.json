@@ -1,6 +1,6 @@
 {
   "name": "java-build",
-  "engineVersion": "v0.18.3",
+  "engineVersion": "v0.18.8",
   "sdk": {
     "source": "java"
   }

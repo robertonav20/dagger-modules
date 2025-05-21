@@ -1,9 +1,9 @@
 ## Initialize
 dagger init --sdk=java --source=./ --name=java-build
-dagger develop --sdk=java --source=./
+dagger develop --sdk=java
 
 dagger init --sdk=typescript --source=./ --name=java-build
-dagger develop --sdk=typescript --source=./
+dagger develop --sdk=typescript
 
 ## How to Use
 dagger -m ../modules/java/java-build call publish \
