@@ -17,8 +17,8 @@ pipeline {
       steps {
         sh '''
           curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR=/tmp/dagger/bin DAGGER_VERSION=$DAGGER_VERSION sh
-          rm -rf dagger-modules && git clone http://gitea:3000/admin/dagger-modules/ dagger-modules
-          dagger call -m ./dagger-modules/java/java-build publish \
+          rm -rf java-dagger-module && git clone http://gitea:3000/admin/java-dagger-module/ java-dagger-module
+          dagger call -m ./java-dagger-module publish \
             --source=./ \
             --imageRepository ttl.sh \
             --imageName hello-world \

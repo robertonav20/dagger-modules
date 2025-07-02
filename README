@@ -6,6 +6,10 @@ dagger init --sdk=typescript --source=./ --name=java-build
 dagger develop --sdk=typescript
 
 ## How to Use
+
+## Local
+
+## Useful commands
 dagger -m ../modules/java/java-build call publish \
     --source=./ \
     --imageRepository ttl.sh \
@@ -38,25 +42,15 @@ export _EXPERIMENTAL_DAGGER_RUNNER_HOST="tcp://localhost:1234" && export NEXUS_U
     --image-name "docker-repo/hello-world" \
     --image-version 1.0.0
 
+## Docker
 
-## Useful commands
+### Add repos to gitea
+1. Initialize Gitea
+2. Run script initialize-repo.sh
 
-### Add repot to gitea
-git remote remove dagger-modules || true && \
-    git remote add dagger-modules http://admin:admin123@localhost:3000/admin/dagger-modules.git && \
-    git add . && \
-    git commit -m "initial commit" && \
-    git push --force dagger-modules main
+### Nexus Configuration
 
-git init && \
-    git checkout -b main && \
-    git remote remove hello-world || true && \
-    git remote add hello-world http://admin:admin123@localhost:3000/admin/hello-world.git && \
-    git add . && \
-    git commit -m "initial commit" && \
-    git push --force hello-world main
-
-### Cenerate certificate nexus docker
+### Cenerate certificate nexus docker (NGINX)
 1. openssl req -x509 -nodes -newkey rsa:4096 -days 365 -subj "/CN=nexus.local" -addext "subjectAltName = DNS:DNS:nexus.local, IP:127.0.0.1" -keyout certs/nexus.key -out certs/nexus.cert
 2. Insert into nginx/certs folder
 
@@ -70,14 +64,17 @@ git init && \
 Follow this guide in case is not clear https://medium.com/@sametustaoglu/nexus-proxy-docker-repository-with-nginx-and-traefik-018dd6b04f72
 
 ### Jenkins
-CRUMB_NEW=$(curl -s 'http://admin:11707283f4d6b11721cef78eeeeb8a6b38@localhost:8090/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)') \
+1. Create token from Jenkins dashboard
+2. Execute the following command
+
+CRUMB_NEW=$(curl -s 'http://admin:11d138b3904ccfd86709a3d7dd23ebc385@localhost:8090/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)') \
     && curl -s -X POST \
         -H $CRUMB_NEW \
-        "http://admin:11707283f4d6b11721cef78eeeeb8a6b38@localhost:8090/createItem?name=hello-world" \
+        "http://admin:11d138b3904ccfd86709a3d7dd23ebc385@localhost:8090/createItem?name=hello-world" \
         --header "Content-Type: application/xml" \
         -d @hello-world.xml
 
-### Docker
+### Nexus docker repo test
 echo "admin123" | docker login nexus.local --username admin --password-stdin
 
 docker pull nexus.local/nginx:latest
